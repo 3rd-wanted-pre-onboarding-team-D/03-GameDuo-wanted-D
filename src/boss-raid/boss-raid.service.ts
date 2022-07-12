@@ -78,9 +78,14 @@ export class BossRaidService {
   }
 
   async endRaid(raidRecordId: number, userId: number, now: Moment) {
-    const record = await this.raidRepository.findOneBy({
-      id: raidRecordId,
-      user: { userId: userId },
+    const record = await this.raidRepository.findOne({
+      where: {
+        id: raidRecordId,
+        user: { userId: userId },
+      },
+      relations: {
+        user: true,
+      },
     });
 
     if (!record) {
@@ -99,7 +104,7 @@ export class BossRaidService {
 
     await this.raidRepository.save(record);
 
-    await this.fetchRanking(record.user.userId, record.score);
+    await this.fetchRanking((await record.user).userId, record.score);
   }
 
   async fetchRanking(userId: number, score: number) {

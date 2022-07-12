@@ -8,8 +8,8 @@ export class RaidRecord {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.records, { eager: true }) // user와 record 1:N
-  user: User;
+  @ManyToOne(() => User, (user) => user.records, { lazy: true }) // user와 record 1:N
+  user: Promise<User>;
 
   @Column()
   level: number;
@@ -36,7 +36,6 @@ export class RaidRecord {
   }
 
   isTimeout(now: Moment) {
-    console.log(now, this.scheduledEndTime);
     return now.isAfter(moment(this.scheduledEndTime));
   }
 
