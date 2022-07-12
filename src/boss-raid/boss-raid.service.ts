@@ -4,6 +4,7 @@ import { Cache } from 'cache-manager';
 import { RAID_REPOSITORY } from '../constants';
 import { RaidRecord } from '../entity/raid-record.entity';
 import { Repository } from 'typeorm';
+import { RaidStatusDto } from './dto/raid-status.dto';
 
 @Injectable()
 export class BossRaidService {
@@ -57,5 +58,15 @@ export class BossRaidService {
     console.log(await this.cacheManager.get('level_1'));
     console.log(await this.cacheManager.get('level_2'));
     console.log(await this.cacheManager.get('level_3'));
+  }
+
+  async getStatus() {
+    const record = await this.raidRepository
+      .createQueryBuilder('raidRecord')
+      .leftJoinAndSelect('raidRecord.user', 'user')
+      .orderBy('id', 'DESC')
+      .getOne();
+
+    return RaidStatusDto.of(record);
   }
 }

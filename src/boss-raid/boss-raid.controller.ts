@@ -1,4 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { BossRaidService } from './boss-raid.service';
 
-@Controller('boss-raid')
-export class BossRaidController {}
+@Controller('bossRaid')
+export class BossRaidController {
+  constructor(private readonly bossRaidService: BossRaidService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  getStatus() {
+    return this.bossRaidService.getStatus();
+  }
+}
