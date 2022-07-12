@@ -1,15 +1,17 @@
 import { Module, CacheModule } from '@nestjs/common';
 import { RankingService } from './ranking.service';
-import * as redisStore from 'cache-manager-ioredis';
+import { RankingController } from './ranking.controller';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Module({
   imports: [
-    CacheModule.register({
-      store: redisStore,
-      host: 'localhost',
-      port: 6379,
+    RedisModule.forRoot({
+      config: {
+        url: 'redis://localhost:6379',
+      },
     }),
   ],
   providers: [RankingService],
+  controllers: [RankingController],
 })
 export class RankingModule {}
