@@ -1,3 +1,4 @@
+import moment, { Moment } from 'moment';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { RaidRecordType } from './raid-record-type';
 import { User } from './user.entity';
@@ -19,18 +20,28 @@ export class RaidRecord {
   @Column({ type: 'enum', enum: RaidRecordType })
   type: RaidRecordType;
 
-  @Column()
+  @Column({ type: 'datetime' })
   startTime: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   endTime: Date;
 
-  @Column()
+  @Column({ type: 'datetime' })
   scheduledEndTime: Date;
 
   isEnded() {
     return (
       this.type === RaidRecordType.FAIL || this.type === RaidRecordType.SUCCESS
     );
+  }
+
+  isTimeout(now: Moment) {
+    console.log(now, this.scheduledEndTime);
+    return now.isAfter(moment(this.scheduledEndTime));
+  }
+
+  success(now: Moment) {
+    this.type = RaidRecordType.SUCCESS;
+    this.endTime = now.toDate();
   }
 }
