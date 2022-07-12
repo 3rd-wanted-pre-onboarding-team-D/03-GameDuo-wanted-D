@@ -5,7 +5,13 @@ import { Injectable } from '@nestjs/common';
 export class RankingService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  async setKey(key: string, value: string) {
-    this.redis.zadd();
+  // 랭킹 추가
+  addRank(key: string, value: number) {
+    this.redis.zadd('raid_record', key, value);
+  }
+
+  // 랭킹 조회 (점수 높은 순)
+  getRank() {
+    this.redis.zrevrange('raid_record', 0, 10, 'WITHSCORES');
   }
 }

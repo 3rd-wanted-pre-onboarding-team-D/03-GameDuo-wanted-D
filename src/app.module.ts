@@ -5,11 +5,10 @@ import { AppService } from './app.service';
 import { BossRaidModule } from './boss-raid/boss-raid.module';
 import { UserModule } from './user/user.module';
 import { RankingModule } from './ranking/ranking.module';
-import { RakingController } from './raking/raking.controller';
 
 @Module({
   imports: [UserModule, ConfigModule.forRoot(), BossRaidModule, RankingModule],
-  controllers: [AppController, RakingController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

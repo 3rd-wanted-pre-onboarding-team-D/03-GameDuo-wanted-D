@@ -1,7 +1,7 @@
-import { Module, CacheModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { RankingService } from './ranking.service';
-import { RankingController } from './ranking.controller';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { RankingController } from './ranking.controller';
 
 @Module({
   imports: [
