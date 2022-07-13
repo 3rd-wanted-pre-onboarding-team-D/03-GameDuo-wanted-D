@@ -7,11 +7,11 @@ export class RankingService {
 
   // 랭킹 추가
   addRank(key: string, value: number) {
-    this.redis.zadd('raid_record', key, value);
+    return this.redis.zadd('raid_record', value, key);
   }
 
-  // 랭킹 조회 (점수 높은 순)
-  getRank() {
-    this.redis.zrevrange('raid_record', 0, 10, 'WITHSCORES');
+  // 랭킹 조회 (점수 높은 순으로 10등까지)
+  async getRank() {
+    return this.redis.zrevrange('raid_record', 0, 10, 'WITHSCORES');
   }
 }
