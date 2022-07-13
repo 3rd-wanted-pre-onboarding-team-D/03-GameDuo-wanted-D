@@ -25,14 +25,14 @@ describe('RankingService', () => {
       const userId = 1;
       const score = 100;
 
-      const result = service.addRank(userId, score);
+      const result = service.updateRank(userId, score);
       expect(result).resolves.toThrowError(BadRequestException);
     });
 
     it('랭킹 조회에 실패한 경우 BadRequestException를 보내는가', () => {
       const userId = 1;
       const score = 100;
-      service.addRank(userId, score);
+      service.updateRank(userId, score);
 
       const result = service.getRank();
       expect(result).resolves.toThrowError(BadRequestException);

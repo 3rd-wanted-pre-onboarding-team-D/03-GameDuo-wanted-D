@@ -112,7 +112,7 @@ export class BossRaidService {
 
   // 랭킹 패치
   async fetchRanking(userId: number, score: number) {
-    this.rankingService.addRank(userId, score);
+    this.rankingService.updateRank(userId, score);
   }
 
   // 랭킹 조회

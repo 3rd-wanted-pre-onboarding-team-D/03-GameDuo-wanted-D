@@ -7,7 +7,7 @@ export class RankingService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
   // 랭킹 추가
-  addRank(key: number, value: number) {
+  updateRank(key: number, value: number) {
     const result = this.redis.zadd('raid_record', value, key);
     return result == null
       ? new BadRequestException('랭킹패치를 실패했습니다.')
@@ -15,7 +15,7 @@ export class RankingService {
   }
 
   // 랭킹 조회 (점수 높은 순으로 10등까지)
-  async getRank() {
+  getRank() {
     const result = this.redis.zrevrange('raid_record', 0, 10, 'WITHSCORES');
     return result == null
       ? new BadRequestException('랭킹조회를 실패했습니다.')
