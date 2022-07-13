@@ -6,7 +6,7 @@ export class RankingService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
   // 랭킹 추가
-  addRank(key: string, value: number) {
+  addRank(key: number, value: number) {
     return this.redis.zadd('raid_record', value, key);
   }
 

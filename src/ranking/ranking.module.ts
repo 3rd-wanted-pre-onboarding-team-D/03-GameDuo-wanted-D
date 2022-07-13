@@ -11,5 +11,6 @@ import { RankingService } from './ranking.service';
     }),
   ],
   providers: [RankingService],
+  exports: [RankingService],
 })
 export class RankingModule {}
