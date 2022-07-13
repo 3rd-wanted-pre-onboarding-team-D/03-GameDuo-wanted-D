@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { RankingService } from './ranking.service';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { RankingService } from './ranking.service';
 import { RankingController } from './ranking.controller';
 
 @Module({
@@ -11,7 +11,9 @@ import { RankingController } from './ranking.controller';
       },
     }),
   ],
+
   providers: [RankingService],
+
   controllers: [RankingController],
 })
 export class RankingModule {}
