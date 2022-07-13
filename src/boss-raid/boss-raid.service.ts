@@ -1,9 +1,17 @@
 import { HttpService } from '@nestjs/axios';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { RAID_REPOSITORY } from '../constants';
 import { RaidRecord } from '../entity/raid-record.entity';
 import { Repository } from 'typeorm';
+import { RaidStatusDto } from './dto/raid-status.dto';
+import { Moment } from 'moment';
 
 @Injectable()
 export class BossRaidService {
@@ -57,5 +65,49 @@ export class BossRaidService {
     console.log(await this.cacheManager.get('level_1'));
     console.log(await this.cacheManager.get('level_2'));
     console.log(await this.cacheManager.get('level_3'));
+  }
+
+  async getStatus() {
+    const record = await this.raidRepository
+      .createQueryBuilder('raidRecord')
+      .leftJoinAndSelect('raidRecord.user', 'user')
+      .orderBy('id', 'DESC')
+      .getOne();
+
+    return RaidStatusDto.of(record);
+  }
+
+  async endRaid(raidRecordId: number, userId: number, now: Moment) {
+    const record = await this.raidRepository.findOne({
+      where: {
+        id: raidRecordId,
+        user: { userId: userId },
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException('해당하는 레이드 기록이 존재하지 않습니다');
+    }
+
+    if (record.isEnded()) {
+      throw new BadRequestException('이미 종료된 레이드입니다');
+    }
+
+    if (record.isTimeout(now)) {
+      throw new BadRequestException('레이드 제한시간이 초과되었습니다');
+    }
+
+    record.success(now);
+
+    await this.raidRepository.save(record);
+
+    await this.fetchRanking((await record.user).userId, record.score);
+  }
+
+  async fetchRanking(userId: number, score: number) {
+    // TODO: 랭킹 패치
   }
 }
