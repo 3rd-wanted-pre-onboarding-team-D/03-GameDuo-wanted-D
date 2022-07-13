@@ -21,21 +21,17 @@ describe('RankingService', () => {
   });
 
   describe('Ranking with Redis', () => {
-    it('랭킹 패치에 실패한 경우 BadRequestException를 보내는가', () => {
+    it('중복된 값을 랭킹패치 하려는 경우 BadRequestException를 보내는가', () => {
       const userId = 1;
       const score = 100;
 
       const result = service.updateRank(userId, score);
-      expect(result).resolves.toThrowError(BadRequestException);
+      expect(result).rejects.toThrow(BadRequestException);
     });
 
     it('랭킹 조회에 실패한 경우 BadRequestException를 보내는가', () => {
-      const userId = 1;
-      const score = 100;
-      service.updateRank(userId, score);
-
       const result = service.getRank();
-      expect(result).resolves.toThrowError(BadRequestException);
+      expect(result).rejects.toThrow(BadRequestException);
     });
   });
 });
