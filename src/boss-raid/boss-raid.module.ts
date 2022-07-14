@@ -5,9 +5,17 @@ import { BossRaidController } from './boss-raid.controller';
 import { bossRaidProviders } from './boss-raid.providers';
 import { BossRaidService } from './boss-raid.service';
 import { RankingModule } from '../ranking/ranking.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeormModule, CacheModule.register(), HttpModule, RankingModule],
+  imports: [
+    TypeormModule,
+    CacheModule.register(),
+    HttpModule,
+    RankingModule,
+    UserModule,
+  ],
+
   controllers: [BossRaidController],
   providers: [...bossRaidProviders, BossRaidService],
 })
