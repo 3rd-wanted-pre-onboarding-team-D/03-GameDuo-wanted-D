@@ -28,10 +28,5 @@ describe('RankingService', () => {
       const result = service.updateRank(userId, score);
       expect(result).rejects.toThrow(BadRequestException);
     });
-
-    it('랭킹 조회에 실패한 경우 BadRequestException를 보내는가', () => {
-      const result = service.getRank();
-      expect(result).rejects.toThrow(BadRequestException);
-    });
   });
 });
