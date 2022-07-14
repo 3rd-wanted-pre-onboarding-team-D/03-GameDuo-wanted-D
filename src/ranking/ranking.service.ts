@@ -17,8 +17,6 @@ export class RankingService {
   // 랭킹 조회 (점수 높은 순으로 10등까지)
   getRank() {
     const result = this.redis.zrevrange('raid_record', 0, 9, 'WITHSCORES');
-    return result
-      ? result
-      : new BadRequestException('등록된 기록이 없어 랭킹조회를 실패했습니다.');
+    return result;
   }
 }
