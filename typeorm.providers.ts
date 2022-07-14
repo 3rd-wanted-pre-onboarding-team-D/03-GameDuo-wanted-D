@@ -18,9 +18,11 @@ export const ormConfig = [
         charset: 'utf8mb4',
         synchronize: true,
         logging: true, //쿼리문 로그
+        timezone: '+00:00',
       });
 
-      return dataSource.initialize();
+      await dataSource.initialize();
+      return dataSource;
     },
   },
 ];

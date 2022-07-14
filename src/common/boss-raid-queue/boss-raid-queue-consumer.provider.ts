@@ -1,10 +1,18 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Job } from 'bull';
+import { RAID_REPOSITORY } from '../../constants';
+import { RaidRecord } from '../../entity/raid-record.entity';
+import { Repository } from 'typeorm';
+import { RaidRecordType } from '../../entity/raid-record-type';
 
 @Processor('raidQueue')
 export class BossRaidQueueConsumer {
   private readonly logger = new Logger(BossRaidQueueConsumer.name);
+  constructor(
+    @Inject(RAID_REPOSITORY)
+    private raidRepository: Repository<RaidRecord>,
+  ) {}
 
   @Process('raid')
   async changeRaidStatusAfterThreeMinutes(raidInfo: Job) {
@@ -23,7 +31,7 @@ export class BossRaidQueueConsumer {
 
     if (!record.isEnded()) {
       record.type = RaidRecordType.FAIL;
-      this.raidRepository.save(record);
+      await this.raidRepository.save(record);
       this.logger.log(`레이드 레코드 ${raidId} 번 의 상태를 변경하였습니다.`);
     }
   }

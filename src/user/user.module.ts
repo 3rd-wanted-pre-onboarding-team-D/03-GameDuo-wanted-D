@@ -8,5 +8,6 @@ import { UserService } from './user.service';
   imports: [TypeormModule],
   controllers: [UserController],
   providers: [...userProviders, UserService],
+  exports: [...userProviders],
 })
 export class UserModule {}
