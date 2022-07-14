@@ -28,5 +28,6 @@ describe('RankingService', () => {
       const result = service.updateRank(userId, score);
       expect(result).rejects.toThrow(BadRequestException);
     });
+
   });
 });

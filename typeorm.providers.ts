@@ -16,7 +16,7 @@ export const ormConfig = [
         database: process.env.DB_DATABASE,
         entities: [User, RaidRecord],
         charset: 'utf8mb4',
-        synchronize: true,
+        synchronize: false,
         logging: true, //쿼리문 로그
         timezone: '+00:00',
       });
