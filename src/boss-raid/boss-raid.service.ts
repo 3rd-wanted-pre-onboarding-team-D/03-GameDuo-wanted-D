@@ -12,6 +12,7 @@ import { RaidRecord } from '../entity/raid-record.entity';
 import { Repository } from 'typeorm';
 import { RaidStatusDto } from './dto/raid-status.dto';
 import { Moment } from 'moment';
+import { RankingService } from '../ranking/ranking.service';
 
 @Injectable()
 export class BossRaidService {
@@ -23,6 +24,8 @@ export class BossRaidService {
     private cacheManager: Cache,
 
     private readonly httpService: HttpService,
+
+    private readonly rankingService: RankingService,
   ) {
     /**
      * 생성 시점에 Static Data 가져오기 위해 실행
@@ -107,7 +110,13 @@ export class BossRaidService {
     await this.fetchRanking((await record.user).userId, record.score);
   }
 
+  // 랭킹 패치
   async fetchRanking(userId: number, score: number) {
-    // TODO: 랭킹 패치
+    this.rankingService.updateRank(userId, score);
+  }
+
+  // 랭킹 조회
+  async getRanking() {
+    return this.rankingService.getRank();
   }
 }
