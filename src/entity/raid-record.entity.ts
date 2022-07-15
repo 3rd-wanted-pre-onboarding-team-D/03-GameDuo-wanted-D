@@ -41,6 +41,7 @@ export class RaidRecord {
     this.type = type;
     this.user = user;
     this.scheduledEndTime = now.add(3, 'minutes').toDate();
+    this.score = 0;
   }
 
   isEnded() {
@@ -53,8 +54,9 @@ export class RaidRecord {
     return now.isAfter(moment(this.scheduledEndTime));
   }
 
-  success(now: Moment) {
+  success(now: Moment, score: number) {
     this.type = RaidRecordType.SUCCESS;
     this.endTime = now.toDate();
+    this.score = score;
   }
 }

@@ -31,9 +31,11 @@ export class UserService {
   }
 
   async getUserData(id: number, password: string) {
-    const user: User = await this.userRepository.findOne({
-      where: { userId: id },
-    });
+    const user: User = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.userId=:id', { id })
+      .leftJoinAndSelect('user.records', 'raid_record')
+      .getOne();
 
     try {
       if (!user) {
@@ -44,11 +46,9 @@ export class UserService {
         }
       }
 
-      let score: number;
+      let score: number = 0;
 
-      if (!user.records) {
-        score = 0;
-      } else {
+      if (user.records) {
         user.records.forEach((record) => {
           score += record.score;
         });

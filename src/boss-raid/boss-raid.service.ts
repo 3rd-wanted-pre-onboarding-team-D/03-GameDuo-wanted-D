@@ -181,7 +181,13 @@ export class BossRaidService {
       throw new BadRequestException('레이드 제한시간이 초과되었습니다');
     }
 
-    record.success(now);
+    let score: number;
+
+    if (record.level === 1) score = 20;
+    if (record.level === 2) score = 47;
+    if (record.level === 3) score = 85;
+
+    record.success(now, score);
 
     await this.raidRepository.save(record);
 
