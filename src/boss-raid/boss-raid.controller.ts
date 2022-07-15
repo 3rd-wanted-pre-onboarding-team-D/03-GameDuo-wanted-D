@@ -29,6 +29,7 @@ export class BossRaidController {
   @HttpCode(HttpStatus.CREATED)
   async start(@Body(ValidationPipe) raidStartRequestDto: RaidStartRequestDto) {
     const { userId, level } = raidStartRequestDto;
+    console.log(userId, level);
     const result = await this.bossRaidService.startRaid(userId, level);
     return result;
   }
