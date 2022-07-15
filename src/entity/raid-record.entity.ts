@@ -1,11 +1,5 @@
-import moment, { Moment, now } from 'moment';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  MongoClient,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import moment, { Moment } from 'moment';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { RaidRecordType } from './raid-record-type';
 import { User } from './user.entity';
 

@@ -225,7 +225,6 @@ export class BossRaidService {
         ranking: i,
         userId: rankingList[2 * i],
         totalScore: rankingList[2 * i + 1],
-
       };
       rankerInfoList.push(rankData);
     }
@@ -238,7 +237,6 @@ export class BossRaidService {
       // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
       myRankingInfo = { ranking: null, userId: null, totalScore: null };
     } else {
-
       const myRank = myRankIdx / 2;
 
       const myTotalScore = rankingList[myRankIdx + 1];

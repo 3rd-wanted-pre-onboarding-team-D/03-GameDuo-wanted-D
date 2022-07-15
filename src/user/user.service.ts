@@ -46,7 +46,7 @@ export class UserService {
         }
       }
 
-      let score: number = 0;
+      let score = 0;
 
       if (user.records) {
         user.records.forEach((record) => {
