@@ -123,16 +123,21 @@ export class BossRaidService {
           });
 
           const raidRecord = new RaidRecord();
-          raidRecord.start(moment().utc(), level, RaidRecordType.START, user);
+          raidRecord.start(
+            moment().utc(true),
+            level,
+            RaidRecordType.START,
+            user,
+          );
 
           const createdRecord = await queryRunner.manager.save(raidRecord);
-          const delay =
-            Number(await this.cacheManager.get('bossRaidLimitSeconds')) * 1000;
+          // const delay: number =
+          //   Number(await this.cacheManager.get('bossRaidLimitSeconds')) * 1000;
 
           await this.raidQueueProducer.createRaidInfo(
             userId,
             createdRecord.id,
-            delay,
+            180000, // delay 변수로 쓰면 상태 변경이 즉시 일어남 이유는 모르겠음..
           );
 
           return {
