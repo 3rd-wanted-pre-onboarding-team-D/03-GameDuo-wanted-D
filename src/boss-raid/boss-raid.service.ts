@@ -18,6 +18,8 @@ import { BossRaidQueueProducer } from 'src/common/boss-raid-queue/boss-raid-queu
 import { User } from '../entity/user.entity';
 import { RaidRecordType } from 'src/entity/raid-record-type';
 import moment from 'moment';
+import { RankingService } from '../ranking/ranking.service';
+import { RankingInfo } from './ranking-info.interface';
 
 @Injectable()
 export class BossRaidService {
@@ -34,6 +36,7 @@ export class BossRaidService {
     private readonly httpService: HttpService,
 
     private readonly raidQueueProducer: BossRaidQueueProducer,
+    private readonly rankingService: RankingService,
   ) {
     /**
      * 생성 시점에 Static Data 가져오기 위해 실행
@@ -123,11 +126,13 @@ export class BossRaidService {
           raidRecord.start(moment().utc(), level, RaidRecordType.START, user);
 
           const createdRecord = await queryRunner.manager.save(raidRecord);
+          const delay =
+            Number(await this.cacheManager.get('bossRaidLimitSeconds')) * 1000;
 
           await this.raidQueueProducer.createRaidInfo(
             userId,
             createdRecord.id,
-            180000,
+            delay,
           );
 
           return {
@@ -178,7 +183,59 @@ export class BossRaidService {
     await this.fetchRanking((await record.user).userId, record.score);
   }
 
-  async fetchRanking(userId: number, score: number) {
-    // TODO: 랭킹 패치
+  // 랭킹 패치
+  fetchRanking(userId: number, score: number) {
+    this.rankingService.updateRank(userId, score);
+  }
+
+  // 랭킹 조회
+  async getRanking(userId: number) {
+    const rankingList = await this.rankingService.getRank();
+
+    const { rankerInfoList, myRankingInfo } = this.makeRankInfo(
+      rankingList,
+      userId,
+    );
+
+    return {
+      topRankerInfoList: rankerInfoList,
+      myRankingInfo: myRankingInfo,
+    };
+  }
+
+  // 랭킹 데이터 파싱
+  makeRankInfo(rankingList, userId: number) {
+    // rankingList ['id1','score1','id2','score2'] score Desc
+
+    const rankerInfoList: RankingInfo[] = [];
+
+    for (let i = 0, j = 0; i < rankingList.length; i += 2, j++) {
+      const rankData: RankingInfo = {
+        ranking: j + 1,
+        userId: rankingList[i],
+        totalScore: rankingList[i + 1],
+      };
+      rankerInfoList.push(rankData);
+    }
+
+    let myRankingInfo: RankingInfo;
+
+    const myRankIdx = rankingList.indexOf(`${userId}`);
+
+    if (myRankIdx === -1) {
+      // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
+      myRankingInfo = { ranking: null, userId: null, totalScore: null };
+    } else {
+      const myRank = myRankIdx / 2 + 1;
+      const myTotalScore = rankingList[myRankIdx + 1];
+
+      myRankingInfo = {
+        ranking: myRank,
+        userId: userId,
+        totalScore: myTotalScore,
+      };
+    }
+
+    return { rankerInfoList, myRankingInfo };
   }
 }

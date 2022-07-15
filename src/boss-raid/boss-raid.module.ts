@@ -5,6 +5,7 @@ import { TypeormModule } from 'typeorm.module';
 import { BossRaidController } from './boss-raid.controller';
 import { bossRaidProviders } from './boss-raid.providers';
 import { BossRaidService } from './boss-raid.service';
+import { RankingModule } from '../ranking/ranking.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { UserModule } from '../user/user.module';
     HttpModule,
     BossRaidQueueModule,
     UserModule,
+    RankingModule
   ],
   controllers: [BossRaidController],
   providers: [...bossRaidProviders, BossRaidService],
