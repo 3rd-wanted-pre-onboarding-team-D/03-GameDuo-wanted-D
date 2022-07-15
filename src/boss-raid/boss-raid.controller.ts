@@ -13,6 +13,7 @@ import moment from 'moment';
 import { HttpExceptionFilter } from '../http-exception.filter';
 import { BossRaidService } from './boss-raid.service';
 import { RaidEndRequestDto } from './dto/raid-end-request.dto';
+import { RaidRankingRequestDto } from './dto/raid-ranking.request.dto';
 import { RaidStartRequestDto } from './dto/raid-start-request.dto';
 
 @Controller('bossRaid')
@@ -47,8 +48,12 @@ export class BossRaidController {
 
   @Get('topRankerList')
   @HttpCode(HttpStatus.OK)
-  async getRanking(@Body('userId') userId: number) {
-    const result = await this.bossRaidService.getRanking(userId);
+  async getRanking(
+    @Body(ValidationPipe) raidRankingRequestDto: RaidRankingRequestDto,
+  ) {
+    const result = await this.bossRaidService.getRanking(
+      raidRankingRequestDto.userId,
+    );
     return result;
   }
 }

@@ -15,7 +15,7 @@ import { UserModule } from '../user/user.module';
     HttpModule,
     BossRaidQueueModule,
     UserModule,
-    RankingModule
+    RankingModule,
   ],
   controllers: [BossRaidController],
   providers: [...bossRaidProviders, BossRaidService],
