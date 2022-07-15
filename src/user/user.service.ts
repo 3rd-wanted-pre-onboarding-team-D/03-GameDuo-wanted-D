@@ -11,6 +11,7 @@ import { USER_REPOSITORY } from '../constants';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserDataDto } from './dto/user-data.dto';
 
 @Injectable()
 export class UserService {
@@ -42,8 +43,28 @@ export class UserService {
           throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
         }
       }
-      console.log(user);
-      return { success: true, user };
+
+      let score: number;
+
+      if (!user.records) {
+        score = 0;
+      } else {
+        user.records.forEach((record) => {
+          score += record.score;
+        });
+      }
+
+      const userData: UserDataDto = new UserDataDto(
+        id,
+        user.email,
+        password,
+        user.nickname,
+        user.createdAt,
+        user.updatedAt,
+        score,
+      );
+
+      return { success: true, userData };
     } catch (error) {
       const response: any = error.response;
       return { success: false, response };
