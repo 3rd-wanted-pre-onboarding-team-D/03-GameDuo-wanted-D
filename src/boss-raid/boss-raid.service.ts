@@ -71,14 +71,6 @@ export class BossRaidService {
     await this.cacheManager.set('level_1', staticData.levels[0].score);
     await this.cacheManager.set('level_2', staticData.levels[1].score);
     await this.cacheManager.set('level_3', staticData.levels[2].score);
-
-    /**
-     *  Memory 값 확인용 console Test 해보고 지우셔도 됩니다.
-     */
-    console.log(await this.cacheManager.get('bossRaidLimitSeconds'));
-    console.log(await this.cacheManager.get('level_1'));
-    console.log(await this.cacheManager.get('level_2'));
-    console.log(await this.cacheManager.get('level_3'));
   }
 
   async getStatus() {
@@ -225,30 +217,21 @@ export class BossRaidService {
         ranking: i,
         userId: rankingList[2 * i],
         totalScore: rankingList[2 * i + 1],
-
       };
       rankerInfoList.push(rankData);
     }
 
-    let myRankingInfo: RankingInfo;
-
     const myRankIdx = rankingList.indexOf(`${userId}`);
 
-    if (myRankIdx === -1) {
-      // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
-      myRankingInfo = { ranking: null, userId: null, totalScore: null };
-    } else {
+    const myRank = myRankIdx / 2;
 
-      const myRank = myRankIdx / 2;
+    const myTotalScore = rankingList[myRankIdx + 1];
 
-      const myTotalScore = rankingList[myRankIdx + 1];
-
-      myRankingInfo = {
-        ranking: myRank,
-        userId: userId,
-        totalScore: myTotalScore,
-      };
-    }
+    const myRankingInfo = {
+      ranking: myRank,
+      userId: userId,
+      totalScore: myTotalScore,
+    };
 
     return { rankerInfoList, myRankingInfo };
   }
