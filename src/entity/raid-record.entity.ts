@@ -53,8 +53,9 @@ export class RaidRecord {
     return now.isAfter(moment(this.scheduledEndTime));
   }
 
-  success(now: Moment) {
+  success(now: Moment, score: number) {
     this.type = RaidRecordType.SUCCESS;
     this.endTime = now.toDate();
+    this.score = score;
   }
 }
