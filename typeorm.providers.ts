@@ -21,7 +21,8 @@ export const ormConfig = [
         timezone: '+00:00',
       });
 
-      return dataSource.initialize();
+      await dataSource.initialize();
+      return dataSource;
     },
   },
 ];

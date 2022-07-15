@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
+  Post,
   UseFilters,
   ValidationPipe,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import moment from 'moment';
 import { HttpExceptionFilter } from '../http-exception.filter';
 import { BossRaidService } from './boss-raid.service';
 import { RaidEndRequestDto } from './dto/raid-end-request.dto';
+import { RaidStartRequestDto } from './dto/raid-start-request.dto';
 
 @Controller('bossRaid')
 export class BossRaidController {
@@ -21,6 +23,14 @@ export class BossRaidController {
   @HttpCode(HttpStatus.OK)
   getStatus() {
     return this.bossRaidService.getStatus();
+  }
+
+  @Post('/enter')
+  @HttpCode(HttpStatus.CREATED)
+  async start(@Body(ValidationPipe) raidStartRequestDto: RaidStartRequestDto) {
+    const { userId, level } = raidStartRequestDto;
+    const result = await this.bossRaidService.startRaid(userId, level);
+    return result;
   }
 
   @Patch('/end')

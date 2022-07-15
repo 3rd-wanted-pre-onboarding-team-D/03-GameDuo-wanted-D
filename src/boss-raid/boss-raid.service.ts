@@ -2,16 +2,22 @@ import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   CACHE_MANAGER,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { RAID_REPOSITORY } from '../constants';
+import { RAID_REPOSITORY, USER_REPOSITORY } from '../constants';
 import { RaidRecord } from '../entity/raid-record.entity';
 import { Repository } from 'typeorm';
 import { RaidStatusDto } from './dto/raid-status.dto';
 import { Moment } from 'moment';
+import { ormConfig } from 'typeorm.providers';
+import { BossRaidQueueProducer } from 'src/common/boss-raid-queue/boss-raid-queue-producer.provider';
+import { User } from '../entity/user.entity';
+import { RaidRecordType } from 'src/entity/raid-record-type';
+import moment from 'moment';
 import { RankingService } from '../ranking/ranking.service';
 import { RankingInfo } from './ranking-info.interface';
 
@@ -21,11 +27,15 @@ export class BossRaidService {
     @Inject(RAID_REPOSITORY)
     private raidRepository: Repository<RaidRecord>,
 
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: Repository<User>,
+
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
 
     private readonly httpService: HttpService,
 
+    private readonly raidQueueProducer: BossRaidQueueProducer,
     private readonly rankingService: RankingService,
   ) {
     /**
@@ -79,6 +89,73 @@ export class BossRaidService {
       .getOne();
 
     return RaidStatusDto.of(record);
+  }
+
+  async startRaid(userId: number, level: number) {
+    const dataSource = await ormConfig[0].useFactory();
+    const queryRunner = dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    let result;
+
+    try {
+      result = await queryRunner.manager
+        .createQueryBuilder(RaidRecord, 'raidRecord')
+        .setLock('pessimistic_read')
+        .leftJoinAndSelect('raidRecord.user', 'user')
+        .orderBy('id', 'DESC')
+        .getOne()
+        .then(async (record) => {
+          const { canEnter } = await RaidStatusDto.of(record);
+          if (!canEnter)
+            throw new ConflictException(
+              { isEntered: false },
+              '레이드에 입장할 수 없습니다.',
+            );
+
+          const user = await queryRunner.manager.findOne(User, {
+            where: {
+              userId,
+            },
+          });
+
+          const raidRecord = new RaidRecord();
+          raidRecord.start(
+            moment().utc(true),
+            level,
+            RaidRecordType.START,
+            user,
+          );
+
+          const createdRecord = await queryRunner.manager.save(raidRecord);
+          // const delay: number =
+          //   Number(await this.cacheManager.get('bossRaidLimitSeconds')) * 1000;
+
+          await this.raidQueueProducer.createRaidInfo(
+            userId,
+            createdRecord.id,
+            180000, // delay 변수로 쓰면 상태 변경이 즉시 일어남 이유는 모르겠음..
+          );
+
+          return {
+            isEntered: true,
+            raidRecordId: createdRecord.id,
+          };
+        });
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new ConflictException(
+        { isEntered: false },
+        '레이드에 입장할 수 없습니다.',
+      );
+    }
+
+    return result;
   }
 
   async endRaid(raidRecordId: number, userId: number, now: Moment) {

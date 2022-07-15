@@ -1,5 +1,11 @@
-import moment, { Moment } from 'moment';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import moment, { Moment, now } from 'moment';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  MongoClient,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { RaidRecordType } from './raid-record-type';
 import { User } from './user.entity';
 
@@ -9,12 +15,12 @@ export class RaidRecord {
   id: number;
 
   @ManyToOne(() => User, (user) => user.records, { lazy: true }) // user와 record 1:N
-  user: Promise<User>;
+  user: User;
 
   @Column()
   level: number;
 
-  @Column()
+  @Column({ default: 0 })
   score: number;
 
   @Column({ type: 'enum', enum: RaidRecordType })
@@ -28,6 +34,14 @@ export class RaidRecord {
 
   @Column({ type: 'datetime' })
   scheduledEndTime: Date;
+
+  start(now: Moment, level: number, type: RaidRecordType, user: User) {
+    this.startTime = now.toDate();
+    this.level = level;
+    this.type = type;
+    this.user = user;
+    this.scheduledEndTime = now.add(3, 'minutes').toDate();
+  }
 
   isEnded() {
     return (
