@@ -14,7 +14,6 @@ import { RaidStatusDto } from './dto/raid-status.dto';
 import { Moment } from 'moment';
 import { RankingService } from '../ranking/ranking.service';
 import { RankingInfo } from './ranking-info.interface';
-import { val } from '../../node_modules/color-support/index';
 
 @Injectable()
 export class BossRaidService {
@@ -138,11 +137,12 @@ export class BossRaidService {
 
     const rankerInfoList: RankingInfo[] = [];
 
-    for (let i = 0, j = 0; i < rankingList.length; i += 2, j++) {
+    for (let i = 0; i < rankingList.length; i++) {
       const rankData: RankingInfo = {
-        ranking: j + 1,
-        userId: rankingList[i],
-        totalScore: rankingList[i + 1],
+        ranking: i,
+        userId: rankingList[2 * i],
+        totalScore: rankingList[2 * i + 1],
+
       };
       rankerInfoList.push(rankData);
     }
@@ -155,7 +155,9 @@ export class BossRaidService {
       // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
       myRankingInfo = { ranking: null, userId: null, totalScore: null };
     } else {
-      const myRank = myRankIdx / 2 + 1;
+
+      const myRank = myRankIdx / 2;
+
       const myTotalScore = rankingList[myRankIdx + 1];
 
       myRankingInfo = {
