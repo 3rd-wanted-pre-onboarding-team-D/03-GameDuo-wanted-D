@@ -13,6 +13,8 @@ import { Repository } from 'typeorm';
 import { RaidStatusDto } from './dto/raid-status.dto';
 import { Moment } from 'moment';
 import { RankingService } from '../ranking/ranking.service';
+import { RankingInfo } from './ranking-info.interface';
+import { val } from '../../node_modules/color-support/index';
 
 @Injectable()
 export class BossRaidService {
@@ -111,12 +113,58 @@ export class BossRaidService {
   }
 
   // 랭킹 패치
-  async fetchRanking(userId: number, score: number) {
+  fetchRanking(userId: number, score: number) {
     this.rankingService.updateRank(userId, score);
   }
 
   // 랭킹 조회
-  async getRanking() {
-    return this.rankingService.getRank();
+  async getRanking(userId: number) {
+    const rankingList = await this.rankingService.getRank();
+
+    const { rankerInfoList, myRankingInfo } = this.makeRankInfo(
+      rankingList,
+      userId,
+    );
+
+    return {
+      topRankerInfoList: rankerInfoList,
+      myRankingInfo: myRankingInfo,
+    };
+  }
+
+  // 랭킹 데이터 파싱
+  makeRankInfo(rankingList, userId: number) {
+    // rankingList ['id1','score1','id2','score2'] score Desc
+
+    const rankerInfoList: RankingInfo[] = [];
+
+    for (let i = 0, j = 0; i < rankingList.length; i += 2, j++) {
+      const rankData: RankingInfo = {
+        ranking: j + 1,
+        userId: rankingList[i],
+        totalScore: rankingList[i + 1],
+      };
+      rankerInfoList.push(rankData);
+    }
+
+    let myRankingInfo: RankingInfo;
+
+    const myRankIdx = rankingList.indexOf(`${userId}`);
+
+    if (myRankIdx === -1) {
+      // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
+      myRankingInfo = { ranking: null, userId: null, totalScore: null };
+    } else {
+      const myRank = myRankIdx / 2 + 1;
+      const myTotalScore = rankingList[myRankIdx + 1];
+
+      myRankingInfo = {
+        ranking: myRank,
+        userId: userId,
+        totalScore: myTotalScore,
+      };
+    }
+
+    return { rankerInfoList, myRankingInfo };
   }
 }

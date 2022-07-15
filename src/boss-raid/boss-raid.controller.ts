@@ -33,4 +33,11 @@ export class BossRaidController {
       moment().utc(),
     );
   }
+
+  @Get('topRankerList')
+  @HttpCode(HttpStatus.OK)
+  async getRanking(@Body('userId') userId: number) {
+    const result = await this.bossRaidService.getRanking(userId);
+    return result;
+  }
 }
