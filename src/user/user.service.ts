@@ -12,14 +12,18 @@ import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserDataDto } from './dto/user-data.dto';
-
 @Injectable()
 export class UserService {
   constructor(
     @Inject(USER_REPOSITORY)
     private userRepository: Repository<User>,
   ) {}
-
+  /**
+   * Example Function
+   */
+  //   async findAll(): Promise<User[]> {
+  //     return this.userRepository.find();
+  //   }
   async signUp(email: string, password: string, nickname: string) {
     const hashPassword: string = await bcrypt.hash(password, 10);
 
