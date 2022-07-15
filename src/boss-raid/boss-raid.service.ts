@@ -221,17 +221,24 @@ export class BossRaidService {
       rankerInfoList.push(rankData);
     }
 
+    let myRankingInfo: RankingInfo;
+
     const myRankIdx = rankingList.indexOf(`${userId}`);
 
-    const myRank = myRankIdx / 2;
+    if (myRankIdx === -1) {
+      // 입력한 userId의 랭킹정보가 없는경우 === 게임기록이 없는경우
+      myRankingInfo = { ranking: null, userId: userId, totalScore: 0 };
+    } else {
+      const myRank = myRankIdx / 2;
 
-    const myTotalScore = rankingList[myRankIdx + 1];
+      const myTotalScore = rankingList[myRankIdx + 1];
 
-    const myRankingInfo = {
-      ranking: myRank,
-      userId: userId,
-      totalScore: myTotalScore,
-    };
+      myRankingInfo = {
+        ranking: myRank,
+        userId: userId,
+        totalScore: myTotalScore,
+      };
+    }
 
     return { rankerInfoList, myRankingInfo };
   }
